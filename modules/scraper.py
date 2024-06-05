@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 
 
-class Scrapper:
+class Scraper:
     def __init__(self, base_url, keywords="", city=""):
         self.base_url = base_url
         self.keywords = keywords

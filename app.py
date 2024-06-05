@@ -1,5 +1,4 @@
-from modules.scrapper import Scrapper
-from modules.indeed import IndeedScrapper
+from modules.indeed import IndeedScraper
 
-scraper = IndeedScrapper("python", "paris")
+scraper = IndeedScraper("python", "paris")
 jobs = scraper.scrape()

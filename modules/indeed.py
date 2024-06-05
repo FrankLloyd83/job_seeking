@@ -1,9 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
-from .scrapper import Scrapper
+from .scraper import Scraper
 
 
-class IndeedScrapper(Scrapper):
+class IndeedScraper(Scraper):
     def __init__(self, keywords="", city=""):
         super().__init__("http://fr.indeed.com/", keywords, city)
         self.full_url = self.base_url + f"emplois?q={self.keywords}&l={self.city}"
