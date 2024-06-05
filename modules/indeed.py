@@ -41,8 +41,46 @@ class IndeedScraper(Scraper):
             return None
         return company.text
 
+    def find_salary(self, content):
+        metadata = content.find(
+            "div",
+            class_="heading6 tapItem-gutter metadataContainer css-z5ecg7 eu4oa1w0",
+        )
+        if metadata is None:
+            return None
+
+        salary = metadata.find(
+            "div",
+            {
+                "data-testid": "attribute_snippet_testid",
+                "class": "css-1cvvo1b eu4oa1w0",
+            },
+        )
+        if salary is None:
+            return None
+        return salary.text
+
+    def get_salary_boundaries(self, salary):
+        boundaries = salary.split("€")[:-1]
+        if len(boundaries) == 1:
+            min_salary = max_salary = "".join(filter(str.isdigit, boundaries[0]))
+
+        for boundary in boundaries:
+            if "de" in boundary.lower():
+                min_salary = "".join(filter(str.isdigit, boundary))
+            elif "à" in boundary.lower():
+                max_salary = "".join(filter(str.isdigit, boundary))
+        try:
+            return min_salary, max_salary
+        except UnboundLocalError:
+            return None, None
+
+    def get_salary_frequency(self, salary):
+        frequency = salary.split(" ")[-1]
+        frequency_map = {"mois": "mensuel", "an": "annuel"}
+        return frequency_map.get(frequency, "non spécifié")
+
     def scrape(self):
-        # Implémentez le scraping spécifique pour Job Site A
         homepage = self.fetch_page(self.full_url)
         if homepage:
             soup = self.parse_html(homepage)
@@ -51,8 +89,18 @@ class IndeedScraper(Scraper):
             for content in contents:
                 if self.find_title(content) is None:
                     continue
+                title = self.find_title(content)
+                city = self.find_city(content)
+                company = self.find_company(content)
+                salary = self.find_salary(content)
+                if salary:
+                    min_salary, max_salary = self.get_salary_boundaries(salary)
+                    frequency = self.get_salary_frequency(salary)
+                else:
+                    min_salary = max_salary = frequency = None
                 print(
-                    self.find_title(content),
-                    self.find_city(content),
-                    self.find_company(content),
+                    f"Title: {title}",
+                    f"City: {city}",
+                    f"Company: {company}",
+                    f"Salary: {min_salary} - {max_salary} {frequency}",
                 )
