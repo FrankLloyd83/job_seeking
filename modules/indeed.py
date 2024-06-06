@@ -108,6 +108,6 @@ class IndeedScraper(Scraper):
                 "min_salary": min_salary,
                 "max_salary": max_salary,
                 "frequency": frequency,
-                "date_added": pd.Timestamp.now(),
+                "date_scraped": pd.Timestamp.now(),
             }
 
