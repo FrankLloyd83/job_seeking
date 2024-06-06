@@ -1,4 +1,5 @@
 import requests
+import json
 from bs4 import BeautifulSoup
 
 
@@ -14,6 +15,7 @@ class Scraper:
             "Connection": "keep-alive",
             "Accept-Language": "en-US,en;q=0.9,lt;q=0.8,et;q=0.7,de;q=0.6",
         }
+        self.kw_list = json.loads(open("resources/kw_list.json").read())
 
     def fetch_page(self, url):
         try:
