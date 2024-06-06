@@ -1,4 +1,5 @@
 import pandas as pd
+import string
 from .scraper import Scraper
 
 
@@ -91,7 +92,12 @@ class IndeedScraper(Scraper):
         return self.base_url + url["href"] if url else None
 
     def find_posted_date(self, content):
-        script = [s for s in content.find_all("script") if "datePublished" in s.text][0]
+        script_soup = [
+            s for s in content.find_all("script") if "datePublished" in s.text
+        ]
+        if not script_soup:
+            return None
+        script = script_soup[0]
         timestamp_str = (
             script.text.split("datePublished")[1]
             .split(":")[1]
@@ -100,6 +106,28 @@ class IndeedScraper(Scraper):
             .replace('"', "")
         )
         return pd.to_datetime(int(timestamp_str), unit="ms")
+
+    def find_keywords(self, content):
+        matching_kw = {}
+        description = content.find(
+            "div",
+            {
+                "id": "jobDescriptionText",
+                "class": "jobsearch-JobComponent-description css-16y4thd eu4oa1w0",
+            },
+        )
+        if not description:
+            return None
+        description_text = description.text.lower().translate(
+            str.maketrans("", "", string.punctuation)
+        )
+        words = description_text.split(" ")
+        for key, keyword_list in self.kw_list.items():
+            matching_kw[key] = {}
+            for word, desc in keyword_list.items():
+                if word in words:
+                    matching_kw[key][word] = desc["mastered"]
+        return matching_kw
 
     def scrape(self):
         homepage = self.fetch_page(self.full_url)
@@ -130,6 +158,9 @@ class IndeedScraper(Scraper):
 
             job_soup = self.parse_html(job_page)
             posted_date = self.find_posted_date(job_soup)
+            keywords_dict = self.find_keywords(job_soup)
+            if keywords_dict:
+                print(keywords_dict["technical"])
 
             yield {
                 "title": title,
@@ -139,6 +170,14 @@ class IndeedScraper(Scraper):
                 "max_salary": max_salary,
                 "frequency": frequency,
                 "rating": rating,
+                "technical keywords": (
+                    list(keywords_dict["technical"].keys()) if keywords_dict else None
+                ),
+                "technical keywords mastered count": (
+                    len([ms for ms in keywords_dict["technical"].values() if ms])
+                    if keywords_dict and keywords_dict["technical"]
+                    else None
+                ),
                 "date_scraped": pd.Timestamp.now(),
                 "date_added": posted_date,
             }
