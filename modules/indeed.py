@@ -4,8 +4,8 @@ from .scraper import Scraper
 
 class IndeedScraper(Scraper):
     def __init__(self, keywords="", city=""):
-        super().__init__("http://fr.indeed.com/", keywords, city)
-        self.full_url = self.base_url + f"emplois?q={self.keywords}&l={self.city}"
+        super().__init__("http://fr.indeed.com", keywords, city)
+        self.full_url = self.base_url + f"/emplois?q={self.keywords}&l={self.city}"
 
     def find_all_contents(self, soup, tag, class_):
         return soup.find_all(tag, class_=class_) if class_ else soup.find_all(tag)
@@ -80,6 +80,21 @@ class IndeedScraper(Scraper):
         frequency_map = {"mois": "mensuel", "an": "annuel"}
         return frequency_map.get(frequency, "non spécifié")
 
+    def get_job_url(self, content):
+        url = content.find("a", class_="jcs-JobTitle css-jspxzf eu4oa1w0")
+        return self.base_url + url["href"] if url else None
+
+    def find_posted_date(self, content):
+        script = [s for s in content.find_all("script") if "datePublished" in s.text][0]
+        timestamp_str = (
+            script.text.split("datePublished")[1]
+            .split(":")[1]
+            .split(",")[0]
+            .strip()
+            .replace('"', "")
+        )
+        return pd.to_datetime(int(timestamp_str), unit="ms")
+
     def scrape(self):
         homepage = self.fetch_page(self.full_url)
         if not homepage:
@@ -101,6 +116,13 @@ class IndeedScraper(Scraper):
             else:
                 min_salary = max_salary = frequency = None
 
+            job_page = self.fetch_page(self.get_job_url(content))
+            if not job_page:
+                continue
+
+            job_soup = self.parse_html(job_page)
+            posted_date = self.find_posted_date(job_soup)
+
             yield {
                 "title": title,
                 "city": city,
@@ -109,5 +131,5 @@ class IndeedScraper(Scraper):
                 "max_salary": max_salary,
                 "frequency": frequency,
                 "date_scraped": pd.Timestamp.now(),
+                "date_added": posted_date,
             }
-
