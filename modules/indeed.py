@@ -4,9 +4,15 @@ from .scraper import Scraper
 
 
 class IndeedScraper(Scraper):
-    def __init__(self, keywords="", city=""):
+    def __init__(self, keywords="", city="", page_number=1):
         super().__init__("http://fr.indeed.com", keywords, city)
-        self.full_url = self.base_url + f"/emplois?q={self.keywords}&l={self.city}"
+        self.pages_number = page_number
+        self.current_page = 0
+        self.cursor = 0
+        self.full_url = (
+            self.base_url
+            + f"/emplois?q={self.keywords}&l={self.city}&start={self.cursor}"
+        )
 
     def find_all_contents(self, soup, tag, class_):
         return soup.find_all(tag, class_=class_) if class_ else soup.find_all(tag)
@@ -15,6 +21,22 @@ class IndeedScraper(Scraper):
         if class_:
             return content.find(tag, class_=class_)
         return content.find(tag, attrs)
+
+    def find_job_id(self, content):
+        div_id = self.find_all_contents(
+            content,
+            "div",
+            lambda value: value
+            and value.startswith("cardOutline tapItem dd-privacy-allow result job_"),
+        )
+        if not div_id:
+            return None
+        classes = div_id[0].get("class")
+        for cls in classes:
+            if cls.startswith("job_"):
+                div_id = cls.split("_")[-1]
+                break
+        return "IN" + div_id
 
     def find_title(self, content):
         head = self.find_element(content, "h2", class_="jobTitle css-198pbd eu4oa1w0")
@@ -130,54 +152,59 @@ class IndeedScraper(Scraper):
         return matching_kw
 
     def scrape(self):
-        homepage = self.fetch_page(self.full_url)
-        if not homepage:
-            return None
+        while self.current_page < self.pages_number:
+            homepage = self.fetch_page(self.full_url)
+            self.current_page += 1
+            if not homepage:
+                return None
 
-        soup = self.parse_html(homepage)
+            soup = self.parse_html(homepage)
 
-        contents = self.find_all_contents(soup, "li", "css-5lfssm eu4oa1w0")
-        for content in contents:
-            if self.find_title(content) is None:
-                continue
-            title = self.find_title(content)
-            city = self.find_city(content)
-            company = self.find_company(content)
-            salary = self.find_salary(content)
-            if salary:
-                min_salary, max_salary = self.get_salary_boundaries(salary)
-                frequency = self.get_salary_frequency(salary)
-            else:
-                min_salary = max_salary = frequency = None
+            contents = self.find_all_contents(soup, "li", "css-5lfssm eu4oa1w0")
+            for content in contents:
+                if self.find_title(content) is None:
+                    continue
+                self.cursor += 1
+                job_id = self.find_job_id(content)
+                title = self.find_title(content)
+                city = self.find_city(content)
+                company = self.find_company(content)
+                salary = self.find_salary(content)
+                if salary:
+                    min_salary, max_salary = self.get_salary_boundaries(salary)
+                    frequency = self.get_salary_frequency(salary)
+                else:
+                    min_salary = max_salary = frequency = None
 
-            rating = self.find_company_rating(content)
+                rating = self.find_company_rating(content)
 
-            job_page = self.fetch_page(self.get_job_url(content))
-            if not job_page:
-                continue
+                job_page = self.fetch_page(self.get_job_url(content))
+                if not job_page:
+                    continue
 
-            job_soup = self.parse_html(job_page)
-            posted_date = self.find_posted_date(job_soup)
-            keywords_dict = self.find_keywords(job_soup)
-            if keywords_dict:
-                print(keywords_dict["technical"])
+                job_soup = self.parse_html(job_page)
+                posted_date = self.find_posted_date(job_soup)
+                keywords_dict = self.find_keywords(job_soup)
 
-            yield {
-                "title": title,
-                "city": city,
-                "company": company,
-                "min_salary": min_salary,
-                "max_salary": max_salary,
-                "frequency": frequency,
-                "rating": rating,
-                "technical keywords": (
-                    list(keywords_dict["technical"].keys()) if keywords_dict else None
-                ),
-                "technical keywords mastered count": (
-                    len([ms for ms in keywords_dict["technical"].values() if ms])
-                    if keywords_dict and keywords_dict["technical"]
-                    else None
-                ),
-                "date_scraped": pd.Timestamp.now(),
-                "date_added": posted_date,
-            }
+                yield {
+                    "job_id": job_id,
+                    "title": title,
+                    "city": city,
+                    "company": company,
+                    "min_salary": min_salary,
+                    "max_salary": max_salary,
+                    "frequency": frequency,
+                    "rating": rating,
+                    "technical keywords": (
+                        list(keywords_dict["technical"].keys())
+                        if keywords_dict
+                        else None
+                    ),
+                    "technical keywords mastered count": (
+                        len([ms for ms in keywords_dict["technical"].values() if ms])
+                        if keywords_dict and keywords_dict["technical"]
+                        else None
+                    ),
+                    "date_scraped": pd.Timestamp.now(),
+                    "date_added": posted_date,
+                }
