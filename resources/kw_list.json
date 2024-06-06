@@ -1,0 +1,96 @@
+{
+    "technical": {
+        "python": {
+            "name": "python",
+            "mastered": true
+        },
+        "azure": {
+            "name": "azure",
+            "mastered": true
+        },
+        "aws": {
+            "name": "aws",
+            "mastered": false
+        },
+        "gcp": {
+            "name": "gcp",
+            "mastered": false
+        },
+        "sql": {
+            "name": "sql",
+            "mastered": true
+        },
+        "scala": {
+            "name": "scala",
+            "mastered": false
+        },
+        "informatique": {
+            "name": "informatique",
+            "mastered": true
+        },
+        "technologies de l'information": {
+            "name": "technologies de l'information",
+            "mastered": true
+        },
+        "java": {
+            "name": "java",
+            "mastered": false
+        },
+        "c++": {
+            "name": "c++",
+            "mastered": false
+        },
+        "flask": {
+            "name": "flask",
+            "mastered": true
+        },
+        "opencv": {
+            "name": "opencv",
+            "mastered": true
+        },
+        "linux": {
+            "name": "linux",
+            "mastered": true
+        },
+        "html5": {
+            "name": "html5",
+            "mastered": true
+        },
+        "javascript": {
+            "name": "javascript",
+            "mastered": true
+        },
+        "css": {
+            "name": "css",
+            "mastered": true
+        },
+        "tensorflow": {
+            "name": "tensorflow",
+            "mastered": true
+        },
+        "pytorch": {
+            "name": "pytorch",
+            "mastered": true
+        },
+        "docker": {
+            "name": "docker",
+            "mastered": true
+        },
+        "php": {
+            "name": "php",
+            "mastered": false
+        },
+        "terraform": {
+            "name": "terraform",
+            "mastered": false
+        },
+        "s3": {
+            "name": "s3",
+            "mastered": false
+        },
+        "redshift": {
+            "name": "redshift",
+            "mastered": false
+        }
+    }
+}
