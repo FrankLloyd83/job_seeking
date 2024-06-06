@@ -5,7 +5,7 @@ from modules.job_scraper_manager import JobScrapperManager
 def main():
     manager = JobScrapperManager()
 
-    indeed_scraper = IndeedScraper("python", "paris")
+    indeed_scraper = IndeedScraper("data engineer", "paris")
     manager.add_scraper(indeed_scraper)
 
     manager.to_csv("data.csv")

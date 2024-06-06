@@ -80,6 +80,12 @@ class IndeedScraper(Scraper):
         frequency_map = {"mois": "mensuel", "an": "annuel"}
         return frequency_map.get(frequency, "non spécifié")
 
+    def find_company_rating(self, content):
+        rating = self.find_element(
+            content, "span", attrs={"data-testid": "holistic-rating"}
+        )
+        return rating["aria-label"].split(" ")[0].replace(",", ".") if rating else None
+
     def get_job_url(self, content):
         url = content.find("a", class_="jcs-JobTitle css-jspxzf eu4oa1w0")
         return self.base_url + url["href"] if url else None
@@ -116,6 +122,8 @@ class IndeedScraper(Scraper):
             else:
                 min_salary = max_salary = frequency = None
 
+            rating = self.find_company_rating(content)
+
             job_page = self.fetch_page(self.get_job_url(content))
             if not job_page:
                 continue
@@ -130,6 +138,7 @@ class IndeedScraper(Scraper):
                 "min_salary": min_salary,
                 "max_salary": max_salary,
                 "frequency": frequency,
+                "rating": rating,
                 "date_scraped": pd.Timestamp.now(),
                 "date_added": posted_date,
             }
