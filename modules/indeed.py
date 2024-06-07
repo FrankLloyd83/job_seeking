@@ -9,6 +9,14 @@ class IndeedScraper(Scraper):
         self.pages_number = page_number
         self.current_page = 0
         self.search_url = self.base_url + f"/emplois?q={self.keywords}&l={self.city}"
+        self.contract_types = [
+            "cdi",
+            "cdd",
+            "stage",
+            "freelance",
+            "intérim",
+            "alternance",
+        ]
 
     def find_all_contents(self, soup, tag, class_):
         return soup.find_all(tag, class_=class_) if class_ else soup.find_all(tag)
@@ -59,6 +67,19 @@ class IndeedScraper(Scraper):
             if location
             else None
         )
+
+    def find_contract_type(self, content):
+        metadata = self.find_all_contents(
+            content,
+            "div",
+            class_="js-match-insights-provider-g6kqeb ecydgvn0",
+        )
+
+        if not metadata:
+            return None
+        for element in metadata:
+            if element.text.lower() in self.contract_types:
+                return element.text
 
     def find_salary(self, content):
         metadata = self.find_element(
@@ -180,7 +201,7 @@ class IndeedScraper(Scraper):
                     min_salary = max_salary = frequency = None
 
                 rating = self.find_company_rating(content)
-                job_url = self.get_job_url(content)
+                job_url = f"http://fr.indeed.com/viewjob?jk={job_id[2:]}"
                 job_page = self.fetch_page(job_url)
                 if not job_page:
                     continue
@@ -188,12 +209,14 @@ class IndeedScraper(Scraper):
                 job_soup = self.parse_html(job_page)
                 posted_date = self.find_posted_date(job_soup)
                 keywords_dict = self.find_keywords(job_soup)
+                contract_type = self.find_contract_type(job_soup)
 
                 yield {
                     "job_id": job_id,
                     "title": title,
                     "city": city,
                     "company": company,
+                    "contract_type": contract_type,
                     "min_salary": min_salary,
                     "max_salary": max_salary,
                     "frequency": frequency,
@@ -210,7 +233,7 @@ class IndeedScraper(Scraper):
                             )
                         )
                         if keywords_dict and keywords_dict["technical"]
-                        else None
+                        else 0
                     ),
                     "date_scraped": pd.Timestamp.now(),
                     "date_added": posted_date,

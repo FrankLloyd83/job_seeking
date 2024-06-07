@@ -22,6 +22,7 @@ class JobScrapperManager:
                     "title",
                     "city",
                     "company",
+                    "contract_type",
                     "min_salary",
                     "max_salary",
                     "frequency",
@@ -37,7 +38,10 @@ class JobScrapperManager:
 
     def to_csv(self, filename):
         df = self.aggregate_results()
-        existing_df = pd.read_csv(filename) if filename else None
+        try:
+            existing_df = pd.read_csv(filename)
+        except FileNotFoundError:
+            existing_df = None
         if existing_df is not None:
             df = pd.concat([existing_df, df], ignore_index=True)
         df = df.drop_duplicates(subset=["job_id"])
