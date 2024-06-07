@@ -91,6 +91,239 @@
         "redshift": {
             "name": "redshift",
             "mastered": false
+        },
+        "spark": {
+            "name": "spark",
+            "mastered": false
+        },
+        "databricks": {
+            "name": "databricks",
+            "mastered": false
+        },
+        "github":
+        {
+            "name": "github",
+            "mastered": true
+        },
+        "gitlab":
+        {
+            "name": "gitlab",
+            "mastered": false
+        },
+        "jenkins":
+        {
+            "name": "jenkins",
+            "mastered": false
+        },
+        "airflow":
+        {
+            "name": "airflow",
+            "mastered": true
+        },
+        "bigquery":
+        {
+            "name": "bigquery",
+            "mastered": false
+        },
+        "dataproc":
+        {
+            "name": "dataproc",
+            "mastered": false
+        },
+        "kubernetes":
+        {
+            "name": "kubernetes",
+            "mastered": false
+        },
+        "vertex ai":
+        {
+            "name": "vertex ai",
+            "mastered": false
+        },
+        "informatica":
+        {
+            "name": "informatica",
+            "mastered": false
+        },
+        "talend":
+        {
+            "name": "talend",
+            "mastered": false
+        },
+        "api":
+        {
+            "name": "api",
+            "mastered": true
+        },
+        "atlas":
+        {
+            "name": "atlas",
+            "mastered": false
+        },
+        "ranger":
+        {
+            "name": "ranger",
+            "mastered": false
+        },
+        "typescript":
+        {
+            "name": "typescript",
+            "mastered": false
+        },
+        "spectrum":
+        {
+            "name": "spectrum",
+            "mastered": false
+        },
+        "lambda":
+        {
+            "name": "lambda",
+            "mastered": false
+        },
+        "athena":
+        {
+            "name": "athena",
+            "mastered": false
+        },
+        "tableau":
+        {
+            "name": "tableau",
+            "mastered": false
+        },
+        "elasticsearch":
+        {
+            "name": "elasticsearch",
+            "mastered": false
+        },
+        "codebuild":
+        {
+            "name": "codebuild",
+            "mastered": false
+        },
+        "ecr":
+        {
+            "name": "ecr",
+            "mastered": false
+        },
+        "hadoop":
+        {
+            "name": "hadoop",
+            "mastered": false
+        },
+        "ssis":
+        {
+            "name": "ssis",
+            "mastered": true
+        },
+        "qlikview":
+        {
+            "name": "qlikview",
+            "mastered": false
+        },
+        "r":
+        {
+            "name": "r",
+            "mastered": false
+        },
+        "sas":
+        {
+            "name": "sas",
+            "mastered": false
+        },
+        "nosql":
+        {
+            "name": "nosql",
+            "mastered": false
+        },
+        "no sql":
+        {
+            "name": "no sql",
+            "mastered": false
+        },
+        "excel":
+        {
+            "name": "excel",
+            "mastered": true
+        },
+        "rdbms":
+        {
+            "name": "rdbms",
+            "mastered": true
+        },
+        "git":
+        {
+            "name": "git",
+            "mastered": true
+        },
+        "json":
+        {
+            "name": "json",
+            "mastered": true
+        },
+        "yaml":
+        {
+            "name": "yaml",
+            "mastered": true
+        },
+        "vscode":
+        {
+            "name": "vscode",
+            "mastered": true
+        },
+        "vs code":
+        {
+            "name": "vs code",
+            "mastered": true
+        },
+        "conda":
+        {
+            "name": "conda",
+            "mastered": true
+        },
+        "cognite data fusion":
+        {
+            "name": "cognite data fusion",
+            "mastered": false
+        },
+        "siemens industrial edge":
+        {
+            "name": "siemens industrial edge",
+            "mastered": false
+        },
+        "azure logs":
+        {
+            "name": "azure logs",
+            "mastered": true
+        },
+        "power bi":
+        {
+            "name": "power bi",
+            "mastered": true
+        },
+        "orientée objet":
+        {
+            "name": "orientée objet",
+            "mastered": true
+        },
+        "poo":
+        {
+            "name": "poo",
+            "mastered": true
+        },
+        "kafka":
+        {
+            "name": "kafka",
+            "mastered": false
+        },
+        "cloud":
+        {
+            "name": "cloud",
+            "mastered": true
+        },
+        "dask":
+        {
+            "name": "dask",
+            "mastered": false
         }
     }
 }
