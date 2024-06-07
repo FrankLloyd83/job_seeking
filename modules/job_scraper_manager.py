@@ -30,6 +30,7 @@ class JobScrapperManager:
                     "technical keywords mastered count",
                     "date_scraped",
                     "date_added",
+                    "job_url",
                 ]
             ),
         )
@@ -40,4 +41,7 @@ class JobScrapperManager:
         if existing_df is not None:
             df = pd.concat([existing_df, df], ignore_index=True)
         df = df.drop_duplicates(subset=["job_id"])
-        df.to_csv(filename, index=False, )
+        df.to_csv(
+            filename,
+            index=False,
+        )

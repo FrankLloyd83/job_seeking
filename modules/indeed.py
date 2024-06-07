@@ -8,10 +8,7 @@ class IndeedScraper(Scraper):
         super().__init__("http://fr.indeed.com", keywords, city)
         self.pages_number = page_number
         self.current_page = 0
-        self.full_url = (
-            self.base_url
-            + f"/emplois?q={self.keywords}&l={self.city}&start={self.current_page * 10}"
-        )
+        self.search_url = self.base_url + f"/emplois?q={self.keywords}&l={self.city}"
 
     def find_all_contents(self, soup, tag, class_):
         return soup.find_all(tag, class_=class_) if class_ else soup.find_all(tag)
@@ -159,8 +156,9 @@ class IndeedScraper(Scraper):
                 self.pages_number,
                 "...",
             )
-            homepage = self.fetch_page(self.full_url)
+            full_url = self.search_url + f"&start={self.current_page * 10}"
             self.current_page += 1
+            homepage = self.fetch_page(full_url)
             if not homepage:
                 return None
 
@@ -182,8 +180,8 @@ class IndeedScraper(Scraper):
                     min_salary = max_salary = frequency = None
 
                 rating = self.find_company_rating(content)
-
-                job_page = self.fetch_page(self.get_job_url(content))
+                job_url = self.get_job_url(content)
+                job_page = self.fetch_page(job_url)
                 if not job_page:
                     continue
 
@@ -206,10 +204,15 @@ class IndeedScraper(Scraper):
                         else None
                     ),
                     "technical keywords mastered count": (
-                        len([ms for ms in keywords_dict["technical"].values() if ms])
+                        int(
+                            len(
+                                [ms for ms in keywords_dict["technical"].values() if ms]
+                            )
+                        )
                         if keywords_dict and keywords_dict["technical"]
                         else None
                     ),
                     "date_scraped": pd.Timestamp.now(),
                     "date_added": posted_date,
+                    "job_url": job_url,
                 }
