@@ -18,12 +18,17 @@ class JobScrapperManager:
                 all_data[0].keys()
                 if all_data
                 else [
+                    "job_id",
                     "title",
                     "city",
                     "company",
                     "min_salary",
                     "max_salary",
                     "frequency",
+                    "rating",
+                    "technical keywords",
+                    "technical keywords mastered count",
+                    "date_scraped",
                     "date_added",
                 ]
             ),
@@ -31,4 +36,5 @@ class JobScrapperManager:
 
     def to_csv(self, filename):
         df = self.aggregate_results()
+        df = df.drop_duplicates(subset=["job_id"])
         df.to_csv(filename, index=False)

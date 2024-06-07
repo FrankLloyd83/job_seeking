@@ -8,10 +8,9 @@ class IndeedScraper(Scraper):
         super().__init__("http://fr.indeed.com", keywords, city)
         self.pages_number = page_number
         self.current_page = 0
-        self.cursor = 0
         self.full_url = (
             self.base_url
-            + f"/emplois?q={self.keywords}&l={self.city}&start={self.cursor}"
+            + f"/emplois?q={self.keywords}&l={self.city}&start={self.current_page * 10}"
         )
 
     def find_all_contents(self, soup, tag, class_):
@@ -153,6 +152,13 @@ class IndeedScraper(Scraper):
 
     def scrape(self):
         while self.current_page < self.pages_number:
+            print(
+                "Scraping Indeed page",
+                self.current_page + 1,
+                "out of",
+                self.pages_number,
+                "...",
+            )
             homepage = self.fetch_page(self.full_url)
             self.current_page += 1
             if not homepage:
@@ -164,7 +170,6 @@ class IndeedScraper(Scraper):
             for content in contents:
                 if self.find_title(content) is None:
                     continue
-                self.cursor += 1
                 job_id = self.find_job_id(content)
                 title = self.find_title(content)
                 city = self.find_city(content)
