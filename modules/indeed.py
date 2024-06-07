@@ -44,7 +44,7 @@ class IndeedScraper(Scraper):
 
     def find_title(self, content):
         head = self.find_element(content, "h2", class_="jobTitle css-198pbd eu4oa1w0")
-        return head.find("span")["title"] if head else None
+        return " ".join(head.find("span")["title"].split()) if head else None
 
     def find_city(self, content):
         location = self.find_element(
