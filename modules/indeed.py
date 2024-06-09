@@ -4,7 +4,17 @@ from .scraper import Scraper
 
 
 class IndeedScraper(Scraper):
+    """
+    Scraper for Indeed job listings.
+    """
+
     def __init__(self, keywords="", city="", page_number=1):
+        """
+        Initialize the Indeed scraper with keywords and city.
+        :param keywords: Keywords to search for
+        :param city: City to search in
+        :param page_number: Number of pages to scrape
+        """
         super().__init__("http://fr.indeed.com", keywords, city)
         self.pages_number = page_number
         self.current_page = 0
@@ -19,14 +29,34 @@ class IndeedScraper(Scraper):
         ]
 
     def find_all_contents(self, soup, tag, class_):
+        """
+        Find all contents in the soup with the given tag and class.
+        :param soup: The soup object
+        :param tag: The tag to search for
+        :param class_: The class to search for
+        :return: A list of contents
+        """
         return soup.find_all(tag, class_=class_) if class_ else soup.find_all(tag)
 
     def find_element(self, content, tag, class_=None, attrs=None):
+        """
+        Find an element in the content with the given tag, class and attributes.
+        :param content: The content to search in
+        :param tag: The tag to search for
+        :param class_: The class to search for
+        :param attrs: The attributes to search for
+        :return: The element
+        """
         if class_:
             return content.find(tag, class_=class_)
         return content.find(tag, attrs)
 
     def find_job_id(self, content):
+        """
+        Find the job ID in the content.
+        :param content: The content to search in
+        :return: The job ID
+        """
         div_id = self.find_all_contents(
             content,
             "div",
@@ -43,10 +73,20 @@ class IndeedScraper(Scraper):
         return "IN" + div_id
 
     def find_title(self, content):
+        """
+        Find the title in the content.
+        :param content: The content to search in
+        :return: The job title
+        """
         head = self.find_element(content, "h2", class_="jobTitle css-198pbd eu4oa1w0")
         return " ".join(head.find("span")["title"].split()) if head else None
 
     def find_city(self, content):
+        """
+        Find the city in the content.
+        :param content: The content to search in
+        :return: The job city
+        """
         location = self.find_element(
             content, "div", class_="company_location css-17fky0v e37uo190"
         )
@@ -57,6 +97,11 @@ class IndeedScraper(Scraper):
         )
 
     def find_company(self, content):
+        """
+        Find the company in the content.
+        :param content: The content to search in
+        :return: The company name
+        """
         location = self.find_element(
             content, "div", class_="company_location css-17fky0v e37uo190"
         )
@@ -69,6 +114,11 @@ class IndeedScraper(Scraper):
         )
 
     def find_contract_type(self, content):
+        """
+        Find the contract type in the content.
+        :param content: The content to search in
+        :return: The contract type (CDI, CDD, etc.)
+        """
         metadata = self.find_all_contents(
             content,
             "div",
@@ -82,6 +132,11 @@ class IndeedScraper(Scraper):
                 return element.text
 
     def find_salary(self, content):
+        """
+        Find the salary in the content.
+        :param content: The content to search in
+        :return: The salary as a string containing the minimum and maximum salary (or the only salary if it's fixed)
+        """
         metadata = self.find_element(
             content,
             "div",
@@ -101,6 +156,11 @@ class IndeedScraper(Scraper):
         return salary.text if salary else None
 
     def get_salary_boundaries(self, salary):
+        """
+        Get the minimum and maximum salary from the salary string.
+        :param salary: The salary string
+        :return: The minimum and maximum salary
+        """
         boundaries = salary.split("€")[:-1]
         if len(boundaries) == 1:
             min_salary = max_salary = "".join(filter(str.isdigit, boundaries[0]))
@@ -116,21 +176,32 @@ class IndeedScraper(Scraper):
             return None, None
 
     def get_salary_frequency(self, salary):
+        """
+        Get the salary frequency from the salary string.
+        :param salary: The salary string
+        :return: The salary frequency
+        """
         frequency = salary.split(" ")[-1]
         frequency_map = {"mois": "mensuel", "an": "annuel"}
         return frequency_map.get(frequency, "non spécifié")
 
     def find_company_rating(self, content):
+        """
+        Find the company rating in the content.
+        :param content: The content to search in
+        :return: The company rating out of 5
+        """
         rating = self.find_element(
             content, "span", attrs={"data-testid": "holistic-rating"}
         )
         return rating["aria-label"].split(" ")[0].replace(",", ".") if rating else None
 
-    def get_job_url(self, content):
-        url = content.find("a", class_="jcs-JobTitle css-jspxzf eu4oa1w0")
-        return self.base_url + url["href"] if url else None
-
     def find_posted_date(self, content):
+        """
+        Find the posted date in the content.
+        :param content: The content to search in
+        :return: The posted date
+        """
         script_soup = [
             s for s in content.find_all("script") if "datePublished" in s.text
         ]
@@ -147,6 +218,11 @@ class IndeedScraper(Scraper):
         return pd.to_datetime(int(timestamp_str), unit="ms")
 
     def find_keywords(self, content):
+        """
+        Find the keywords in the content using a keyword list provided in a JSON file.
+        :param content: The content to search in
+        :return: A dictionary of keywords and their mastery status (true or false)
+        """
         matching_kw = {}
         description = content.find(
             "div",
@@ -169,6 +245,11 @@ class IndeedScraper(Scraper):
         return matching_kw
 
     def scrape(self):
+        """
+        Scrape the Indeed base URL for job listings, using the above methods.
+        :return: A dictionary of job details
+        """
+
         while self.current_page < self.pages_number:
             print(
                 "Scraping Indeed page",
