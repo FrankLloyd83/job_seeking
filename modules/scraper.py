@@ -4,7 +4,17 @@ from bs4 import BeautifulSoup
 
 
 class Scraper:
+    """
+    Base class for all scrapers. Subclasses should implement the scrape method.
+    """
+
     def __init__(self, base_url, keywords="", city=""):
+        """
+        Initialize the scraper with a base URL, keywords and city.
+        :param base_url: The base URL to scrape
+        :param keywords: Keywords to search for
+        :param city: City to search in
+        """
         self.base_url = base_url
         self.keywords = keywords
         self.city = city
@@ -18,6 +28,11 @@ class Scraper:
         self.kw_list = json.loads(open("resources/kw_list.json").read())
 
     def fetch_page(self, url):
+        """
+        Fetch a page from the given URL.
+        :param url: The URL to fetch
+        :return: The response object
+        """
         try:
             response = requests.get(url, headers=self.headers)
             response.raise_for_status()
@@ -27,6 +42,10 @@ class Scraper:
             return None
 
     def detect_encoding(self, response):
+        """
+        Detect the encoding of the response content.
+        :param response: The response object
+        """
         content_type = response.headers.get("content-type")
         if "charset=" in content_type:
             self.encoding = content_type.split("charset=")[-1]
@@ -34,9 +53,17 @@ class Scraper:
             self.encoding = "utf-8"
 
     def parse_html(self, response):
+        """
+        Parse the HTML content of the response.
+        :param response: The response object
+        :return: The parsed HTML content
+        """
         self.detect_encoding(response)
         html_content = response.content.decode(self.encoding)
         return BeautifulSoup(html_content, "html.parser")
 
     def scrape(self):
+        """
+        Scrape the base URL for job listings.
+        """
         raise NotImplementedError("Subclasses should implement this method")
